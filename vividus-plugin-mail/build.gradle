@@ -1,0 +1,23 @@
+project.description = 'Vividus plugin for Mongo DB testing'
+
+ext {
+    mailVersion = '2.0.0-RC5'
+}
+
+dependencies {
+    api project(':vividus-bdd-engine')
+    implementation project(':vividus-util')
+
+    implementation(group: 'jakarta.mail', name: 'jakarta.mail-api', version: mailVersion)
+    implementation(group: 'com.sun.mail', name: 'jakarta.mail', version: mailVersion)
+    implementation(group: 'com.sun.mail', name: 'imap', version: mailVersion)
+    implementation(group: 'javax.inject', name: 'javax.inject', version: versions.javaxInject)
+
+    testImplementation platform(group: 'org.junit', name: 'junit-bom', version: versions.junit)
+    testImplementation(group: 'org.junit.jupiter', name: 'junit-jupiter')
+    testRuntimeOnly(group: 'org.junit.vintage', name: 'junit-vintage-engine')
+    testImplementation(group: 'org.mockito', name: 'mockito-core', version: versions.mockito)
+    testImplementation(group: 'org.mockito', name: 'mockito-junit-jupiter', version: versions.mockito)
+    testImplementation(group: 'org.powermock', name: 'powermock-module-junit4', version: versions.powermock)
+    testImplementation(group: 'org.powermock', name: 'powermock-api-mockito2', version: versions.powermock)
+}
