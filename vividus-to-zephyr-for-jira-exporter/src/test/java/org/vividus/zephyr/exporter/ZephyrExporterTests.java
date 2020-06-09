@@ -43,7 +43,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.vividus.jira.IJiraFacade;
+import org.vividus.jira.JiraFacade;
+import org.vividus.jira.model.JiraEntity;
 import org.vividus.zephyr.IZephyrFacade;
 import org.vividus.zephyr.ZephyrConfiguration;
 
@@ -69,7 +70,7 @@ class ZephyrExporterTests
     private final TestLogger testLogger = TestLoggerFactory.getTestLogger(ZephyrExporter.class);
 
     @Mock
-    private IJiraFacade jiraFacade;
+    private JiraFacade jiraFacade;
 
     @Mock
     private IZephyrFacade zephyrFacade;
@@ -126,6 +127,7 @@ class ZephyrExporterTests
     @Test
     void testExportResultsProblemWithSerializing() throws IOException
     {
+        mockJiraIssueRetrieve("key", "42");
         when(zephyrExporterProperties.getSourceDirectory()).thenReturn(PATH);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> zephyrExporter.exportResults());
@@ -145,17 +147,24 @@ class ZephyrExporterTests
         configuration.setCycleId("11113");
         configuration.setFolderId("11114");
         when(zephyrFacade.prepareConfiguration()).thenReturn(configuration);
-        String firstIssueId = "1";
-        String secondIssueId = "2";
-        when(jiraFacade.getIssueId("TEST-1")).thenReturn(firstIssueId);
-        when(jiraFacade.getIssueId("TEST-2")).thenReturn(secondIssueId);
-        when(zephyrFacade.createExecution(String.format(EXECUTION_BODY, firstIssueId))).thenReturn(111);
-        when(zephyrFacade.createExecution(String.format(EXECUTION_BODY, secondIssueId))).thenReturn(222);
+        String issueId1 = "1";
+        String issueId2 = "2";
+        mockJiraIssueRetrieve("TEST-1", issueId1);
+        mockJiraIssueRetrieve("TEST-2", issueId2);
+        when(zephyrFacade.createExecution(String.format(EXECUTION_BODY, issueId1))).thenReturn(111);
+        when(zephyrFacade.createExecution(String.format(EXECUTION_BODY, issueId2))).thenReturn(222);
         zephyrExporter.exportResults();
         verify(zephyrFacade).updateExecutionStatus(111, "{\"status\":\"-1\"}");
         verify(zephyrFacade).updateExecutionStatus(222, "{\"status\":\"1\"}");
         assertThat(testLogger.getLoggingEvents().get(0).getMessage(), is(JSON_FILES_STRING));
         assertThat(testLogger.getLoggingEvents().get(0).getLevel(), is(Level.INFO));
         assertThat(testLogger.getLoggingEvents().size(), equalTo(3));
+    }
+
+    private void mockJiraIssueRetrieve(String issueKey, String issueId) throws IOException
+    {
+        JiraEntity issue = new JiraEntity();
+        issue.setId(issueId);
+        when(jiraFacade.getIssue(issueKey)).thenReturn(issue);
     }
 }

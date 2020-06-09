@@ -28,7 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.vividus.jira.IJiraClient;
+import org.vividus.jira.JiraClient;
 
 @ExtendWith(MockitoExtension.class)
 class ZephyrFacadeTests
@@ -49,7 +49,7 @@ class ZephyrFacadeTests
     private static final String TEST = "test";
 
     @Mock
-    private IJiraClient client;
+    private JiraClient client;
 
     @Mock
     private ZephyrConfiguration zephyrConfiguration;
